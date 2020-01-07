@@ -2,19 +2,13 @@ const fs = require('fs');
 const util = require('util');
 
 const readdir = util.promisify(fs.readdir);
-const readfile = util.promisify(fs.readFile);
+// const readfile = util.promisify(fs.readFile);
 
-// eslint-disable-next-line
-async function findDataFiles() {
+/* eslint-disable import/prefer-default-export */
+export const findDataFiles = async () => {
   const components = await processDirectory('./', 'data');
-  console.log(components);
-  const content = await readfile(
-    `${components[0].path}/${components[0].name}`,
-    'utf8'
-  );
-  const obj = JSON.parse(content);
-  console.log(obj);
-}
+  return components;
+};
 
 async function processDirectory(parentPath, nextDirectory) {
   const currentPath = `${parentPath}${nextDirectory}/`;

@@ -1,0 +1,20 @@
+{
+  "componentName": "string",
+  "syledComponents": [
+    {
+      "name": "string",
+      "type": "string",
+      "styles": {
+        "property1": "value1",
+        "property2": "value2"
+      }
+    }
+  ],
+  "state": [
+    {
+      "name": "string",
+      "default": {}
+    }
+  ],
+  "returnJsx": ""
+}
