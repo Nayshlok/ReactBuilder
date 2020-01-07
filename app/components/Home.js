@@ -113,7 +113,7 @@ const Home = () => {
           current.value.element,
           {
             onClick: currentEvent => {
-              setSelectedComponent(current);
+              updateSelectedComponent(current);
               currentEvent.preventDefault();
             },
             style: current.value.style
@@ -131,7 +131,7 @@ const Home = () => {
                 if (nextEvent.target !== nextEvent.currentTarget) {
                   return;
                 }
-                setSelectedComponent(next);
+                updateSelectedComponent(next);
                 nextEvent.preventDefault();
               },
               style: next.value.style
@@ -142,11 +142,21 @@ const Home = () => {
           );
         }
 
+        rendered = React.cloneElement(rendered, { key: comp });
+
         return rendered;
       });
 
     setParsedWorkspace(parsed);
   }, [componentList]);
+
+  const updateSelectedComponent = component => {
+    setSelectedComponent(component);
+    const styleArray = Object.keys(component.value.style).map(s => {
+      return { name: s, value: component.value.style[s] };
+    });
+    setCurrentStyles(styleArray);
+  };
 
   const updateStyle = composedStyle => {
     const componentListCopy = {
