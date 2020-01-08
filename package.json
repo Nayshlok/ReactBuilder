@@ -110,33 +110,14 @@
     "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
   },
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "Nayshlok",
+    "email": "nayshlokandco@gmail.com",
+    "url": "https://github.com/Nayshlok"
   },
-  "contributors": [
-    {
-      "name": "Vikram Rangaraj",
-      "email": "vikr01@icloud.com",
-      "url": "https://github.com/vikr01"
-    },
-    {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
-    }
-  ],
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
-  },
   "keywords": [
-    "electron",
-    "boilerplate",
     "react",
-    "redux",
     "flow",
-    "sass",
     "webpack",
     "hot",
     "reload"
@@ -261,7 +242,6 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.12.0",
     "@hot-loader/react-dom": "^16.11.0",
-    "connected-react-router": "^6.6.1",
     "core-js": "^3.5.0",
     "devtron": "^1.4.0",
     "electron-debug": "^3.0.1",
@@ -272,11 +252,8 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-hot-loader": "^4.12.18",
-    "react-redux": "^7.1.3",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
-    "redux": "^4.0.4",
-    "redux-thunk": "^2.3.0",
     "source-map-support": "^0.5.16",
     "styled-components": "^4.4.1"
   },

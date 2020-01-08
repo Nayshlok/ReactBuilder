@@ -73,14 +73,17 @@ const Home = () => {
     setComponentList({
       helloOuter: {
         element: TestNest,
-        children: 'Hello #{helloInner} World',
-        initialVisibile: true,
+        children: 'Hello #{helloInner} World #{anotherTest}',
         style: {}
       },
       helloInner: {
         element: NestedStrong,
         children: 'sweet',
-        initialVisibile: false,
+        style: {}
+      },
+      anotherTest: {
+        element: 'span',
+        children: 'Testington',
         style: {}
       }
     });
@@ -88,66 +91,144 @@ const Home = () => {
 
   useEffect(() => {
     const componentKeys = Object.keys(componentList);
-    const parsed = componentKeys
-      .filter(comp => componentList[comp].initialVisibile)
-      .map(comp => {
-        const stack = [];
-        let current = {
-          name: comp,
-          value: componentList[comp]
+    if (!componentKeys.length) {
+      return function noOp() {};
+    }
+    const comp = componentKeys[0];
+    let current = {
+      name: comp,
+      value: componentList[comp],
+      subItems: []
+    };
+    const rootElement = current;
+    const templateRegex = /#{(.*?)}/g;
+    const processedMap = new Map();
+    processedMap.set(current.name, current);
+    const itemsToProcess = [];
+    while (
+      templateRegex.test(current.value.children) ||
+      itemsToProcess.length
+    ) {
+      templateRegex.lastIndex = 0;
+      const currentMatch = [...current.value.children.matchAll(templateRegex)];
+      // eslint-disable-next-line no-loop-func
+      currentMatch.forEach(match => {
+        const nextItem = componentKeys.find(x => x === match[1]);
+        const nextElement = {
+          name: nextItem,
+          value: componentList[nextItem],
+          subItems: []
         };
-        const templateRegex = /#{(.*)}/;
-        while (templateRegex.test(current.value.children)) {
-          const currentMatch = current.value.children.match(templateRegex);
-          stack.push(current);
-          const nextItem = componentKeys.find(x => x === currentMatch[1]);
-          if (!nextItem) {
-            return null;
-          }
-          current = {
-            name: nextItem,
-            value: componentList[nextItem]
-          };
+        current.subItems.push(nextItem);
+        if (!processedMap.has(nextItem)) {
+          itemsToProcess.push(nextElement);
+          processedMap.set(nextItem, nextElement);
         }
-        let rendered = e(
-          current.value.element,
-          {
-            onClick: currentEvent => {
-              updateSelectedComponent(current);
-              currentEvent.preventDefault();
-            },
-            style: current.value.style
+      });
+      if (itemsToProcess.length) {
+        const nextElement = itemsToProcess.pop();
+        current = nextElement;
+      }
+    }
+    const renderedMap = new Map();
+    const leafItems = [];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [key, val] of processedMap) {
+      if (!val.subItems.length) {
+        leafItems.push({
+          key,
+          val
+        });
+      }
+    }
+    leafItems.forEach(leaf => {
+      const { key, val } = leaf;
+      const renderedItem = e(
+        val.value.element,
+        {
+          onClick: nextEvent => {
+            if (nextEvent.target !== nextEvent.currentTarget) {
+              return;
+            }
+            updateSelectedComponent(val);
+            nextEvent.preventDefault();
           },
-          current.value.children
-        );
-        while (stack.length > 0) {
-          const next = stack.pop();
-          const templateMatch = next.value.children.match(templateRegex);
-          const childParts = next.value.children.split(templateMatch[0]);
-          rendered = e(
-            next.value.element,
+          style: val.value.style
+        },
+        val.value.children
+      );
+      renderedMap.set(key, renderedItem);
+    });
+
+    let processing = true;
+    while (processing) {
+      const availableToRender = [];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [key, val] of processedMap) {
+        if (
+          !renderedMap.has(key) && // Filter those that have not been rendered
+          val.subItems.every(item => renderedMap.has(item)) // and can be rendred
+        ) {
+          availableToRender.push({
+            key,
+            val
+          });
+        }
+      }
+      if (availableToRender.length) {
+        availableToRender.forEach(componentToRender => {
+          const { key, val } = componentToRender;
+          const renderedSubItems = val.subItems.map(item => {
+            return {
+              value: renderedMap.get(item),
+              key: item
+            };
+          });
+          const splitChildren = renderedSubItems.reduce(
+            (previous, currentItem) => {
+              const workingSegmentIndex = previous.findIndex(x => {
+                return typeof x === 'string' && x.includes(currentItem.key);
+              });
+              const splitSegment = previous[workingSegmentIndex].split(
+                `#{${currentItem.key}}`
+              );
+              const rendered = splitSegment.reduce((agg, segment, index) => {
+                if (index === splitSegment.length - 1) {
+                  return agg.concat(segment);
+                }
+                return agg.concat(segment, currentItem.value);
+              }, []);
+              previous.splice(workingSegmentIndex, 1, ...rendered);
+              return previous;
+            },
+            [val.value.children]
+          );
+          const renderingItem = e(
+            val.value.element,
             {
               onClick: nextEvent => {
                 if (nextEvent.target !== nextEvent.currentTarget) {
                   return;
                 }
-                updateSelectedComponent(next);
+                updateSelectedComponent(val);
                 nextEvent.preventDefault();
               },
-              style: next.value.style
+              style: val.value.style
             },
-            childParts[0],
-            rendered,
-            childParts[1]
+            ...splitChildren
           );
-        }
+          renderedMap.set(key, renderingItem);
+        });
+      } else {
+        processing = false;
+      }
+    }
+    const finalRendering = React.cloneElement(
+      renderedMap.get(rootElement.name),
+      { key: comp }
+    );
 
-        rendered = React.cloneElement(rendered, { key: comp });
-
-        return rendered;
-      });
-
-    setParsedWorkspace(parsed);
+    setParsedWorkspace(finalRendering);
   }, [componentList]);
 
   const updateSelectedComponent = component => {

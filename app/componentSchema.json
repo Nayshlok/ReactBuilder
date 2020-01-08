@@ -1,5 +1,6 @@
 {
   "componentName": "string",
+  "element": "string",
   "syledComponents": [
     {
       "name": "string",
@@ -16,5 +17,5 @@
       "default": {}
     }
   ],
-  "returnJsx": ""
+  "children": ""
 }
