@@ -81,7 +81,7 @@ const Home = () => {
       },
       helloOuter: {
         element: TestNest,
-        children: 'Hello #{helloInner} World #{anotherTest}',
+        children: 'Hello #{helloInner} World #{missing}',
         style: {}
       },
       helloInner: {
@@ -114,8 +114,8 @@ const Home = () => {
     processedMap.set(current.name, current);
     const itemsToProcess = [];
     while (
-      templateRegex.test(current.value.children) ||
-      itemsToProcess.length
+      current &&
+      (templateRegex.test(current.value.children) || itemsToProcess.length)
     ) {
       templateRegex.lastIndex = 0;
       const currentMatch = [...current.value.children.matchAll(templateRegex)];
@@ -127,15 +127,19 @@ const Home = () => {
           value: componentList[nextItem],
           subItems: []
         };
-        current.subItems.push(nextItem);
-        if (!processedMap.has(nextItem)) {
-          itemsToProcess.push(nextElement);
-          processedMap.set(nextItem, nextElement);
+        if (nextItem) {
+          current.subItems.push(nextItem);
+          if (!processedMap.has(nextItem)) {
+            itemsToProcess.push(nextElement);
+            processedMap.set(nextItem, nextElement);
+          }
         }
       });
       if (itemsToProcess.length) {
         const nextElement = itemsToProcess.pop();
         current = nextElement;
+      } else {
+        current = false;
       }
     }
     const renderedMap = new Map();

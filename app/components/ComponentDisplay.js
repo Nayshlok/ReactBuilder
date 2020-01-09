@@ -40,6 +40,10 @@ const ComponentDisplay = ({
       children: childString
     };
     addComponent(newName, newComponent, selectedName, oldComponent);
+    setNewChild('');
+    setNewName('');
+    setNewType('');
+    setEditing(false);
   };
 
   const nullCheckedValue = selectedComponent.element || 'none';
