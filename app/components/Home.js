@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { findDataFiles } from '../actions/fileAccess';
 import StyleMaker from './StyleMaker';
+import ComponentDisplay from './ComponentDisplay';
 
 const e = React.createElement;
 
@@ -71,6 +72,13 @@ const Home = () => {
     loadFiles();
 
     setComponentList({
+      parentContainer: {
+        element: 'div',
+        children: '#{helloOuter}',
+        style: {
+          padding: '5px'
+        }
+      },
       helloOuter: {
         element: TestNest,
         children: 'Hello #{helloInner} World #{anotherTest}',
@@ -262,6 +270,7 @@ const Home = () => {
       <HomeHeader>My Home</HomeHeader>
       <Sidebar>
         {renderedComponentList}
+        <ComponentDisplay selectedComponent={selectedComponent || {}} />
         <StyleMaker
           updateParent={comp => updateStyle(comp)}
           setStyles={setCurrentStyles}
