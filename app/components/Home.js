@@ -258,6 +258,14 @@ const Home = () => {
     setComponentList(componentListCopy);
   };
 
+  const addComponent = (name, component, oldName, oldComponent) => {
+    setComponentList({
+      ...componentList,
+      [oldName]: oldComponent,
+      [name]: component
+    });
+  };
+
   const renderedComponentList = availableComponents.map(comp => (
     <FileItem key={`${comp.path}${comp.name}`}>{`${comp.path.replace(
       './',
@@ -270,7 +278,11 @@ const Home = () => {
       <HomeHeader>My Home</HomeHeader>
       <Sidebar>
         {renderedComponentList}
-        <ComponentDisplay selectedComponent={selectedComponent || {}} />
+        <ComponentDisplay
+          selectedName={selectedComponent.name}
+          selectedComponent={componentList[selectedComponent.name] || {}}
+          addComponent={addComponent}
+        />
         <StyleMaker
           updateParent={comp => updateStyle(comp)}
           setStyles={setCurrentStyles}
